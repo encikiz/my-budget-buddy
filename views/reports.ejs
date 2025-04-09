@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Buddy - <%= title %></title>
+    <link rel="shortcut icon" href="/images/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <img src="/images/nerdy-finance-logo-ultra.svg" alt="Budget Buddy Logo">
+                <h1>Budget Buddy</h1>
+            </div>
+            <div class="tagline">
+                "Your Wallet Will Thank You"
+            </div>
+            <nav>
+                <ul>
+                    <li>
+                        <a href="/"><i class="fas fa-home"></i> Dashboard</a>
+                    </li>
+                    <li>
+                        <a href="/income"><i class="fas fa-dollar-sign"></i> Income</a>
+                    </li>
+                    <li>
+                        <a href="/categories"><i class="fas fa-tags"></i> Categories</a>
+                    </li>
+                    <li>
+                        <a href="/expenses"><i class="fas fa-shopping-cart"></i> Expenses</a>
+                    </li>
+                    <li class="active">
+                        <a href="/reports"><i class="fas fa-chart-bar"></i> Reports</a>
+                    </li>
+                    <li>
+                        <a href="/settings"><i class="fas fa-cog"></i> Settings</a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="balance-container">
+                <div class="current-balance">
+                    <h3>CURRENT BALANCE</h3>
+                    <h2>RM<%= currentBalance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></h2>
+                    <p><i class="fas fa-arrow-up"></i> <span>5%</span> from last month</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header>
+                <div class="header-left">
+                    <h2>Budget Buddy</h2>
+                </div>
+                <div class="header-right">
+                    <div class="user-profile">
+                        <span><%= typeof user !== 'undefined' ? user.name : 'Hafizan' %></span>
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </header>
+
+            <div class="content">
+                <section id="reports-section" class="content-section active-section">
+                    <div class="section-header">
+                        <h2>Reports</h2>
+                        <div class="date-filter-container">
+                            <form id="date-filter-form" action="/reports" method="GET">
+                                <div class="date-filter">
+                                    <label for="startDate">From:</label>
+                                    <input type="date" id="startDate" name="startDate" value="<%= startDate %>">
+
+                                    <label for="endDate">To:</label>
+                                    <input type="date" id="endDate" name="endDate" value="<%= endDate %>">
+
+                                    <div class="comparison-toggle">
+                                        <label for="compare">Compare with previous year:</label>
+                                        <input type="checkbox" id="compare" name="compare" value="true" <%= showComparison ? 'checked' : '' %>>
+                                    </div>
+
+                                    <button type="submit" class="btn-primary">Apply</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="reports-container">
+                        <div class="summary-cards">
+                            <div class="summary-card income-card">
+                                <div class="card-icon">
+                                    <i class="fas fa-dollar-sign"></i>
+                                </div>
+                                <div class="card-content">
+                                    <h3>Yearly Income (<%= currentYear %>)</h3>
+                                    <p class="amount">RM<%= yearlyIncome.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></p>
+                                    <% if (showComparison && previousYearTotals.yearlyIncome !== undefined) { %>
+                                        <p class="comparison">
+                                            <span class="prev-year"><%= previousYear %>: RM<%= previousYearTotals.yearlyIncome.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></span>
+                                            <% const incomeDiff = yearlyIncome - previousYearTotals.yearlyIncome; %>
+                                            <% const incomePercent = previousYearTotals.yearlyIncome > 0 ? (incomeDiff / previousYearTotals.yearlyIncome) * 100 : 0; %>
+                                            <span class="diff <%= incomeDiff >= 0 ? 'positive' : 'negative' %>">
+                                                <i class="fas fa-<%= incomeDiff >= 0 ? 'arrow-up' : 'arrow-down' %>"></i>
+                                                <%= Math.abs(incomePercent).toFixed(1) %>%
+                                            </span>
+                                        </p>
+                                    <% } %>
+                                </div>
+                            </div>
+                            <div class="summary-card expenses-card">
+                                <div class="card-icon">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </div>
+                                <div class="card-content">
+                                    <h3>Yearly Expenses (<%= currentYear %>)</h3>
+                                    <p class="amount">RM<%= yearlyExpenses.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></p>
+                                    <% if (showComparison && previousYearTotals.yearlyExpenses !== undefined) { %>
+                                        <p class="comparison">
+                                            <span class="prev-year"><%= previousYear %>: RM<%= previousYearTotals.yearlyExpenses.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></span>
+                                            <% const expensesDiff = yearlyExpenses - previousYearTotals.yearlyExpenses; %>
+                                            <% const expensesPercent = previousYearTotals.yearlyExpenses > 0 ? (expensesDiff / previousYearTotals.yearlyExpenses) * 100 : 0; %>
+                                            <span class="diff <%= expensesDiff >= 0 ? 'negative' : 'positive' %>">
+                                                <i class="fas fa-<%= expensesDiff >= 0 ? 'arrow-up' : 'arrow-down' %>"></i>
+                                                <%= Math.abs(expensesPercent).toFixed(1) %>%
+                                            </span>
+                                        </p>
+                                    <% } %>
+                                </div>
+                            </div>
+                            <div class="summary-card savings-card">
+                                <div class="card-icon">
+                                    <i class="fas fa-piggy-bank"></i>
+                                </div>
+                                <div class="card-content">
+                                    <h3>Yearly Savings (<%= currentYear %>)</h3>
+                                    <p class="amount">RM<%= yearlySavings.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></p>
+                                    <p class="savings-ratio"><%= yearlySavingsRatio.toFixed(1) %>% of income</p>
+                                    <% if (showComparison && previousYearTotals.yearlySavings !== undefined) { %>
+                                        <p class="comparison">
+                                            <span class="prev-year"><%= previousYear %>: RM<%= previousYearTotals.yearlySavings.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></span>
+                                            <% const savingsDiff = yearlySavings - previousYearTotals.yearlySavings; %>
+                                            <% const savingsPercent = previousYearTotals.yearlySavings > 0 ? (savingsDiff / previousYearTotals.yearlySavings) * 100 : 0; %>
+                                            <span class="diff <%= savingsDiff >= 0 ? 'positive' : 'negative' %>">
+                                                <i class="fas fa-<%= savingsDiff >= 0 ? 'arrow-up' : 'arrow-down' %>"></i>
+                                                <%= Math.abs(savingsPercent).toFixed(1) %>%
+                                            </span>
+                                        </p>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="report-charts">
+                            <div class="chart-container">
+                                <h3>Monthly Overview</h3>
+                                <canvas id="monthlyChart"></canvas>
+                            </div>
+
+                            <div class="chart-container">
+                                <h3>Expense Categories</h3>
+                                <canvas id="expenseCategoryChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="monthly-breakdown">
+                            <h3>Monthly Breakdown</h3>
+                            <div class="table-responsive">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Month</th>
+                                            <th>Income</th>
+                                            <th>Expenses</th>
+                                            <th>Savings</th>
+                                            <th>Savings Rate</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% monthlyData.forEach(month => { %>
+                                            <tr>
+                                                <td><%= month.month %></td>
+                                                <td>RM<%= month.income.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></td>
+                                                <td>RM<%= month.expenses.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></td>
+                                                <td>RM<%= month.savings.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></td>
+                                                <td><%= month.income > 0 ? ((month.savings / month.income) * 100).toFixed(1) : 0 %>%</td>
+                                            </tr>
+                                        <% }); %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Budget Buddy: Your Wallet Will Thank You. Developed by Hafizan.</p>
+    </footer>
+
+    <script src="/js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Monthly chart
+            const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+            const monthlyChart = new Chart(monthlyCtx, {
+                type: 'bar',
+                data: {
+                    labels: [<% monthlyData.forEach((month, index) => { %>'<%= month.month %>'<%= index < monthlyData.length - 1 ? ',' : '' %><% }); %>],
+                    datasets: [
+                        <% if (showComparison && previousYearMonthlyData.length > 0) { %>
+                        {
+                            label: '<%= previousYear %> Income',
+                            data: [<% previousYearMonthlyData.forEach((month, index) => { %><%= month.income %><%= index < previousYearMonthlyData.length - 1 ? ',' : '' %><% }); %>],
+                            backgroundColor: 'rgba(76, 175, 80, 0.5)',
+                            borderColor: 'rgba(76, 175, 80, 0.8)',
+                            borderWidth: 1,
+                            type: 'line',
+                            order: 0
+                        },
+                        {
+                            label: '<%= previousYear %> Expenses',
+                            data: [<% previousYearMonthlyData.forEach((month, index) => { %><%= month.expenses %><%= index < previousYearMonthlyData.length - 1 ? ',' : '' %><% }); %>],
+                            backgroundColor: 'rgba(244, 67, 54, 0.5)',
+                            borderColor: 'rgba(244, 67, 54, 0.8)',
+                            borderWidth: 1,
+                            type: 'line',
+                            order: 1
+                        },
+                        {
+                            label: '<%= previousYear %> Savings',
+                            data: [<% previousYearMonthlyData.forEach((month, index) => { %><%= month.savings %><%= index < previousYearMonthlyData.length - 1 ? ',' : '' %><% }); %>],
+                            backgroundColor: 'rgba(33, 150, 243, 0.5)',
+                            borderColor: 'rgba(33, 150, 243, 0.8)',
+                            borderWidth: 1,
+                            type: 'line',
+                            order: 2
+                        },
+                        <% } %>
+                        {
+                            label: '<%= currentYear %> Income',
+                            data: [<% monthlyData.forEach((month, index) => { %><%= month.income %><%= index < monthlyData.length - 1 ? ',' : '' %><% }); %>],
+                            backgroundColor: '#4caf50',
+                            borderColor: '#4caf50',
+                            borderWidth: 1,
+                            order: 3
+                        },
+                        {
+                            label: '<%= currentYear %> Expenses',
+                            data: [<% monthlyData.forEach((month, index) => { %><%= month.expenses %><%= index < monthlyData.length - 1 ? ',' : '' %><% }); %>],
+                            backgroundColor: '#f44336',
+                            borderColor: '#f44336',
+                            borderWidth: 1,
+                            order: 4
+                        },
+                        {
+                            label: '<%= currentYear %> Savings',
+                            data: [<% monthlyData.forEach((month, index) => { %><%= month.savings %><%= index < monthlyData.length - 1 ? ',' : '' %><% }); %>],
+                            backgroundColor: '#2196f3',
+                            borderColor: '#2196f3',
+                            borderWidth: 1,
+                            order: 5
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#a0a0a0'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#a0a0a0'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#ffffff'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Expense category chart
+            const categoryCtx = document.getElementById('expenseCategoryChart').getContext('2d');
+            const categoryChart = new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: [<% Object.keys(yearlyExpensesByCategory).forEach((category, index) => { %>'<%= category %>'<%= index < Object.keys(yearlyExpensesByCategory).length - 1 ? ',' : '' %><% }); %>],
+                    datasets: [{
+                        data: [<% Object.keys(yearlyExpensesByCategory).forEach((category, index) => { %><%= yearlyExpensesByCategory[category].amount %><%= index < Object.keys(yearlyExpensesByCategory).length - 1 ? ',' : '' %><% }); %>],
+                        backgroundColor: [<% Object.keys(yearlyExpensesByCategory).forEach((category, index) => { %>'<%= yearlyExpensesByCategory[category].color %>'<%= index < Object.keys(yearlyExpensesByCategory).length - 1 ? ',' : '' %><% }); %>],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                color: '#ffffff'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

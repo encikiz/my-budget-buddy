@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="50" cy="50" r="48" fill="white" stroke="#4caf50" stroke-width="2"/>
+  
+  <!-- Minimalist Head Silhouette -->
+  <path d="M35 30 Q 50 20 65 30 L 65 55 Q 50 65 35 55 Z" fill="#4caf50" stroke="none"/>
+  
+  <!-- Minimalist Glasses -->
+  <rect x="30" y="38" width="40" height="4" rx="2" ry="2" fill="white" stroke="none"/>
+  <circle cx="38" cy="40" r="8" fill="none" stroke="white" stroke-width="2.5"/>
+  <circle cx="62" cy="40" r="8" fill="none" stroke="white" stroke-width="2.5"/>
+  
+  <!-- Dollar Sign -->
+  <text x="50" y="85" font-family="Arial" font-size="24" font-weight="bold" text-anchor="middle" fill="#4caf50">$</text>
+  
+  <!-- Minimalist Bowtie -->
+  <path d="M45 60 L 40 65 L 45 70 L 50 65 L 55 70 L 60 65 L 55 60 Z" fill="#4caf50"/>
+</svg>

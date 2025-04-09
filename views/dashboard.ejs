@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Buddy - <%= title %></title>
+    <link rel="shortcut icon" href="/images/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <img src="/images/nerdy-finance-logo-ultra.svg" alt="Budget Buddy Logo">
+                <h1>Budget Buddy</h1>
+            </div>
+            <div class="tagline">
+                "Your Wallet Will Thank You"
+            </div>
+            <nav>
+                <ul>
+                    <li class="active">
+                        <a href="/"><i class="fas fa-home"></i> Dashboard</a>
+                    </li>
+                    <li>
+                        <a href="/income"><i class="fas fa-dollar-sign"></i> Income</a>
+                    </li>
+                    <li>
+                        <a href="/categories"><i class="fas fa-tags"></i> Categories</a>
+                    </li>
+                    <li>
+                        <a href="/expenses"><i class="fas fa-shopping-cart"></i> Expenses</a>
+                    </li>
+                    <li>
+                        <a href="/reports"><i class="fas fa-chart-bar"></i> Reports</a>
+                    </li>
+                    <li>
+                        <a href="/settings"><i class="fas fa-cog"></i> Settings</a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="balance-container">
+                <div class="current-balance">
+                    <h3>CURRENT BALANCE</h3>
+                    <h2>RM<%= currentBalance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></h2>
+                    <p><i class="fas fa-arrow-up"></i> <span>5%</span> from last month</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header>
+                <div class="header-left">
+                    <h2>Budget Buddy</h2>
+                </div>
+                <div class="header-right">
+                    <div class="user-profile">
+                        <span><%= typeof user !== 'undefined' ? user.name : 'Hafizan' %></span>
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </header>
+
+            <div class="content">
+                <section id="dashboard-section" class="content-section active-section">
+                    <div class="section-header">
+                        <h2>Dashboard</h2>
+                        <div class="date-filter">
+                            <span>Current Month</span>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-content">
+                        <div class="summary-cards">
+                            <div class="summary-card income-card">
+                                <div class="card-icon">
+                                    <i class="fas fa-dollar-sign"></i>
+                                </div>
+                                <div class="card-content">
+                                    <h3>Total Income</h3>
+                                    <p class="amount">RM<%= totalIncome.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></p>
+                                    <p class="trend positive"><i class="fas fa-arrow-up"></i> 5% from last month</p>
+                                </div>
+                            </div>
+                            <div class="summary-card expenses-card">
+                                <div class="card-icon">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </div>
+                                <div class="card-content">
+                                    <h3>Total Expenses</h3>
+                                    <p class="amount">RM<%= totalExpenses.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></p>
+                                    <p class="trend negative"><i class="fas fa-arrow-up"></i> 3% from last month</p>
+                                </div>
+                            </div>
+                            <div class="summary-card savings-card">
+                                <div class="card-icon">
+                                    <i class="fas fa-piggy-bank"></i>
+                                </div>
+                                <div class="card-content">
+                                    <h3>Total Savings</h3>
+                                    <p class="amount">RM<%= savings.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></p>
+                                    <p class="savings-ratio"><%= ((savings / totalIncome) * 100).toFixed(1) %>% of income</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-charts">
+                            <div class="chart-container">
+                                <h3>Expense Breakdown</h3>
+                                <div class="expense-breakdown-container">
+                                    <div class="chart-wrapper" style="height: 360px;">
+                                        <canvas id="expenseDoughnutChart"></canvas>
+                                    </div>
+                                    <div class="category-list-container">
+                                        <h4>Category Spending</h4>
+                                        <ul class="category-progress-list">
+                                            <% if (typeof expensesByCategory !== 'undefined') { %>
+                                                <% Object.keys(expensesByCategory).forEach(category => { %>
+                                                    <li class="category-progress-item">
+                                                        <div class="category-info">
+                                                            <span class="category-color" style="background-color: <%= expensesByCategory[category].color %>"></span>
+                                                            <span class="category-name"><%= category %></span>
+                                                            <span class="category-amount">RM<%= expensesByCategory[category].amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></span>
+                                                        </div>
+                                                        <div class="progress-bar-container">
+                                                            <div class="progress-bar" style="width: <%= (expensesByCategory[category].amount / totalExpenses * 100).toFixed(1) %>%; background-color: <%= expensesByCategory[category].color %>"></div>
+                                                        </div>
+                                                        <div class="category-percentage"><%= (expensesByCategory[category].amount / totalExpenses * 100).toFixed(1) %>%</div>
+                                                    </li>
+                                                <% }); %>
+                                            <% } else { %>
+                                                <li class="no-data">No expense data available</li>
+                                            <% } %>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="top-expenses-container">
+                                    <h4>Top Expenses</h4>
+                                    <ul class="top-expenses-list">
+                                        <% if (typeof recentTransactions !== 'undefined') { %>
+                                            <% recentTransactions.filter(t => t.type === 'expense').slice(0, 3).forEach(transaction => { %>
+                                                <li class="top-expense-item">
+                                                    <div class="expense-icon" style="background-color: <%= transaction.color %>">
+                                                        <i class="fas fa-shopping-cart"></i>
+                                                    </div>
+                                                    <div class="expense-details">
+                                                        <div class="expense-description"><%= transaction.description %></div>
+                                                        <div class="expense-meta">
+                                                            <span class="expense-category"><%= transaction.category %></span>
+                                                            <span class="expense-date"><%= new Date(transaction.date).toLocaleDateString() %></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="expense-amount">RM<%= transaction.amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></div>
+                                                </li>
+                                            <% }); %>
+                                        <% } else { %>
+                                            <li class="no-data">No recent expenses</li>
+                                        <% } %>
+                                    </ul>
+                                </div>
+                                <div class="monthly-comparison">
+                                    <h4>Monthly Comparison</h4>
+                                    <canvas id="monthlyComparisonChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Budget Buddy: Your Wallet Will Thank You. Developed by Hafizan.</p>
+    </footer>
+
+    <script src="/js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Expense Doughnut Chart
+            <% if (typeof expensesByCategory !== 'undefined' && Object.keys(expensesByCategory).length > 0) { %>
+                const expenseCtx = document.getElementById('expenseDoughnutChart').getContext('2d');
+                const expenseChart = new Chart(expenseCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: [<% Object.keys(expensesByCategory).forEach((category, index) => { %>'<%= category %>'<%= index < Object.keys(expensesByCategory).length - 1 ? ',' : '' %><% }); %>],
+                        datasets: [{
+                            data: [<% Object.keys(expensesByCategory).forEach((category, index) => { %><%= expensesByCategory[category].amount %><%= index < Object.keys(expensesByCategory).length - 1 ? ',' : '' %><% }); %>],
+                            backgroundColor: [<% Object.keys(expensesByCategory).forEach((category, index) => { %>'<%= expensesByCategory[category].color %>'<%= index < Object.keys(expensesByCategory).length - 1 ? ',' : '' %><% }); %>],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        layout: {
+                            padding: 10
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: {
+                                    color: '#ffffff',
+                                    font: {
+                                        size: 12
+                                    },
+                                    padding: 15
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.raw || 0;
+                                        const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                        const percentage = Math.round((value / total) * 100);
+                                        return `${label}: RM${value.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        },
+                        cutout: '70%',
+                        animation: {
+                            animateScale: true,
+                            animateRotate: true
+                        }
+                    }
+                });
+            <% } %>
+
+            // Monthly Comparison Chart
+            <% if (typeof monthlyData !== 'undefined' && monthlyData.length > 0) { %>
+                const monthlyCtx = document.getElementById('monthlyComparisonChart').getContext('2d');
+                const monthlyChart = new Chart(monthlyCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: [<% monthlyData.slice(-3).forEach((month, index) => { %>'<%= month.month %>'<%= index < monthlyData.slice(-3).length - 1 ? ',' : '' %><% }); %>],
+                        datasets: [{
+                            label: 'Expenses',
+                            data: [<% monthlyData.slice(-3).forEach((month, index) => { %><%= month.expenses %><%= index < monthlyData.slice(-3).length - 1 ? ',' : '' %><% }); %>],
+                            backgroundColor: '#f44336',
+                            borderColor: '#f44336',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                },
+                                ticks: {
+                                    color: '#a0a0a0',
+                                    callback: function(value) {
+                                        return 'RM' + value.toLocaleString();
+                                    }
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                },
+                                ticks: {
+                                    color: '#a0a0a0'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.dataset.label || '';
+                                        const value = context.raw || 0;
+                                        return `${label}: RM${value.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            <% } %>
+        });
+    </script>
+</body>
+</html>
