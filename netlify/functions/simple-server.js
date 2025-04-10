@@ -171,10 +171,10 @@ app.get('/', (req, res) => {
           margin-bottom: 10px;
         }
 
-        .auth-header .logo i {
-          font-size: 24px;
+        .auth-header .logo img {
+          width: 40px;
+          height: 40px;
           margin-right: 10px;
-          color: var(--accent-color);
         }
 
         .auth-body {
@@ -228,14 +228,8 @@ app.get('/', (req, res) => {
         }
 
         .guest-login {
-          margin: 20px 0;
+          margin: 15px 0;
           text-align: center;
-        }
-
-        .guest-login p {
-          margin-bottom: 15px;
-          color: var(--text-muted);
-          position: relative;
         }
 
         .btn-secondary {
@@ -262,6 +256,69 @@ app.get('/', (req, res) => {
           text-decoration: none;
         }
 
+        /* Social login styles */
+        .social-login {
+          margin: 20px 0;
+          text-align: center;
+        }
+
+        .social-login p {
+          margin-bottom: 15px;
+          color: var(--text-muted);
+          position: relative;
+        }
+
+        .social-login p::before,
+        .social-login p::after {
+          content: '';
+          position: absolute;
+          top: 50%;
+          width: 30%;
+          height: 1px;
+          background-color: var(--border-color);
+        }
+
+        .social-login p::before {
+          left: 0;
+        }
+
+        .social-login p::after {
+          right: 0;
+        }
+
+        .btn-google {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
+          padding: 10px 20px;
+          background-color: white;
+          color: #444;
+          border-radius: 5px;
+          border: 1px solid #ddd;
+          font-weight: 500;
+          text-decoration: none;
+          transition: background-color 0.3s;
+        }
+
+        .btn-google:hover {
+          background-color: #f5f5f5;
+        }
+
+        .btn-google img {
+          width: 18px;
+          height: 18px;
+          margin-right: 10px;
+        }
+
+        /* Guest info styles */
+        .guest-info {
+          margin-top: 10px;
+          font-size: 0.85rem;
+          color: var(--text-muted);
+          text-align: center;
+        }
+
         footer {
           text-align: center;
           padding: 20px;
@@ -275,7 +332,7 @@ app.get('/', (req, res) => {
         <div class="auth-card">
           <div class="auth-header">
             <div class="logo">
-              <i class="fas fa-dollar-sign"></i>
+              <img src="/images/nerdy-finance-logo-ultra.svg" alt="Budget Buddy Logo">
               <h1>Budget Buddy</h1>
             </div>
             <div class="tagline">
@@ -305,9 +362,17 @@ app.get('/', (req, res) => {
               </div>
             </form>
 
-            <div class="guest-login">
+            <div class="social-login">
               <p>- OR -</p>
+              <a href="#" class="btn-google" onclick="alert('Google login is only available in the full application')">
+                <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo">
+                <span>Login with Google</span>
+              </a>
+            </div>
+
+            <div class="guest-login">
               <a href="/?guest=true" class="btn-secondary">Login as Guest</a>
+              <p class="guest-info">Try without registration. Experience all features with sample data.</p>
             </div>
 
             <div class="auth-footer">

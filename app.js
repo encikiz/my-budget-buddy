@@ -58,45 +58,8 @@ app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Passport local strategy
-passport.use(new LocalStrategy(
-  { usernameField: 'email' },
-  async (email, password, done) => {
-    try {
-      // Find user by email
-      const user = await User.findOne({ email });
-
-      if (!user) {
-        return done(null, false, { message: 'Incorrect email or password' });
-      }
-
-      // Check password
-      const isMatch = await bcrypt.compare(password, user.password);
-
-      if (!isMatch) {
-        return done(null, false, { message: 'Incorrect email or password' });
-      }
-
-      return done(null, user);
-    } catch (err) {
-      return done(err);
-    }
-  }
-));
-
-// Serialize and deserialize user
-passport.serializeUser((user, done) => {
-  done(null, user.id);
-});
-
-passport.deserializeUser(async (id, done) => {
-  try {
-    const user = await User.findById(id);
-    done(null, user);
-  } catch (err) {
-    done(err);
-  }
-});
+// Configure Passport strategies
+require('./config/passport')(passport);
 
 // Global variables middleware
 app.use((req, res, next) => {

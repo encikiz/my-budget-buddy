@@ -99,7 +99,7 @@
                                 <div class="card-content">
                                     <h3>Yearly Income (<%= currentYear %>)</h3>
                                     <p class="amount">RM<%= yearlyIncome.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></p>
-                                    <% if (showComparison && previousYearTotals.yearlyIncome !== undefined) { %>
+                                    <% if (showComparison && previousYearTotals && previousYearTotals.yearlyIncome !== undefined) { %>
                                         <p class="comparison">
                                             <span class="prev-year"><%= previousYear %>: RM<%= previousYearTotals.yearlyIncome.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></span>
                                             <% const incomeDiff = yearlyIncome - previousYearTotals.yearlyIncome; %>
@@ -119,7 +119,7 @@
                                 <div class="card-content">
                                     <h3>Yearly Expenses (<%= currentYear %>)</h3>
                                     <p class="amount">RM<%= yearlyExpenses.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></p>
-                                    <% if (showComparison && previousYearTotals.yearlyExpenses !== undefined) { %>
+                                    <% if (showComparison && previousYearTotals && previousYearTotals.yearlyExpenses !== undefined) { %>
                                         <p class="comparison">
                                             <span class="prev-year"><%= previousYear %>: RM<%= previousYearTotals.yearlyExpenses.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></span>
                                             <% const expensesDiff = yearlyExpenses - previousYearTotals.yearlyExpenses; %>
@@ -140,7 +140,7 @@
                                     <h3>Yearly Savings (<%= currentYear %>)</h3>
                                     <p class="amount">RM<%= yearlySavings.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></p>
                                     <p class="savings-ratio"><%= yearlySavingsRatio.toFixed(1) %>% of income</p>
-                                    <% if (showComparison && previousYearTotals.yearlySavings !== undefined) { %>
+                                    <% if (showComparison && previousYearTotals && previousYearTotals.yearlySavings !== undefined) { %>
                                         <p class="comparison">
                                             <span class="prev-year"><%= previousYear %>: RM<%= previousYearTotals.yearlySavings.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></span>
                                             <% const savingsDiff = yearlySavings - previousYearTotals.yearlySavings; %>
@@ -214,7 +214,7 @@
                 data: {
                     labels: [<% monthlyData.forEach((month, index) => { %>'<%= month.month %>'<%= index < monthlyData.length - 1 ? ',' : '' %><% }); %>],
                     datasets: [
-                        <% if (showComparison && previousYearMonthlyData.length > 0) { %>
+                        <% if (showComparison && previousYearMonthlyData && previousYearMonthlyData.length > 0) { %>
                         {
                             label: '<%= previousYear %> Income',
                             data: [<% previousYearMonthlyData.forEach((month, index) => { %><%= month.income %><%= index < previousYearMonthlyData.length - 1 ? ',' : '' %><% }); %>],

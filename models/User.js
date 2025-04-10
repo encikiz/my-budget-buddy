@@ -16,7 +16,18 @@ const UserSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true
+    required: function() {
+      // Password is required only if googleId is not provided
+      return !this.googleId;
+    }
+  },
+  googleId: {
+    type: String,
+    default: null
+  },
+  profileImage: {
+    type: String,
+    default: null
   },
   settings: {
     currency: {
@@ -36,6 +47,14 @@ const UserSchema = new mongoose.Schema({
       default: true
     }
   },
+  resetPasswordToken: {
+    type: String,
+    default: null
+  },
+  resetPasswordExpires: {
+    type: Date,
+    default: null
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -44,10 +63,15 @@ const UserSchema = new mongoose.Schema({
 
 // Hash password before saving
 UserSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) {
+  // Skip password hashing if using Google auth or password not modified
+  if (this.googleId && !this.password) {
     return next();
   }
-  
+
+  if (!this.isModified('password') || !this.password) {
+    return next();
+  }
+
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);

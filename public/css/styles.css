@@ -224,6 +224,31 @@ header {
     border-radius: 5px;
 }
 
+.date-filter input[type="date"] {
+    background-color: #3a3f50; /* Light grey background */
+    margin: 0 10px;
+    width: auto;
+}
+
+/* Comparison toggle styling */
+.comparison-toggle {
+    display: flex;
+    align-items: center;
+    margin-right: 15px; /* Add space between the toggle and Apply button */
+}
+
+.comparison-toggle label {
+    margin-right: 8px;
+    white-space: nowrap;
+}
+
+.comparison-toggle input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--accent-color);
+}
+
 .date-filter span {
     margin-right: 10px;
 }
@@ -332,6 +357,15 @@ header {
     width: 100%;
     padding: 10px;
     background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    color: var(--text-color);
+}
+
+/* Date input fields with light grey background */
+input[type="date"] {
+    background-color: #3a3f50; /* Light grey background */
+    padding: 10px;
     border: 1px solid var(--border-color);
     border-radius: 5px;
     color: var(--text-color);
@@ -1451,4 +1485,5 @@ footer {
 /* Date picker icon color */
 input[type="date"]::-webkit-calendar-picker-indicator {
     filter: invert(1); /* Makes the icon white */
+    opacity: 0.8; /* Increase opacity for better visibility */
 }

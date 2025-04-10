@@ -3,6 +3,8 @@ const router = express.Router();
 const passport = require('passport');
 const User = require('../models/User');
 const { ensureGuest } = require('../middleware/auth');
+const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
 
 // Home route - show login page or redirect to dashboard
 router.get('/', (req, res) => {
@@ -37,6 +39,23 @@ router.post('/login', (req, res, next) => {
     failureFlash: true
   })(req, res, next);
 });
+
+// Google Auth Routes
+router.get('/auth/google', passport.authenticate('google', {
+  scope: ['profile', 'email']
+}));
+
+// Google Auth Callback
+router.get('/auth/google/callback',
+  passport.authenticate('google', {
+    failureRedirect: '/login',
+    failureFlash: true
+  }),
+  (req, res) => {
+    // Successful authentication
+    res.redirect('/');
+  }
+);
 
 // Register process
 router.post('/register', async (req, res) => {
@@ -286,6 +305,149 @@ router.get('/logout', (req, res) => {
     if (err) { return next(err); }
     res.redirect('/login');
   });
+});
+
+// Forgot Password page
+router.get('/forgot-password', ensureGuest, (req, res) => {
+  res.render('auth/forgot-password', {
+    title: 'Forgot Password',
+    errors: []
+  });
+});
+
+// Forgot Password process
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // Validation
+    if (!email) {
+      return res.render('auth/forgot-password', {
+        title: 'Forgot Password',
+        errors: [{ msg: 'Please enter your email address' }]
+      });
+    }
+
+    // Find user by email
+    const user = await User.findOne({ email });
+
+    // If user doesn't exist, still show success message for security
+    if (!user) {
+      req.flash('success', 'If your email is registered, you will receive password reset instructions');
+      return res.render('auth/forgot-password', {
+        title: 'Forgot Password',
+        success_msg: 'If your email is registered, you will receive password reset instructions'
+      });
+    }
+
+    // Generate token
+    const token = crypto.randomBytes(20).toString('hex');
+
+    // Set token and expiration
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+
+    await user.save();
+
+    // In a real application, you would send an email with the reset link
+    // For this demo, we'll just show the token in the console
+    console.log(`Password reset token for ${email}: ${token}`);
+    console.log(`Reset link: http://localhost:${process.env.PORT || 5002}/reset-password/${token}`);
+
+    req.flash('success', 'If your email is registered, you will receive password reset instructions');
+    res.render('auth/forgot-password', {
+      title: 'Forgot Password',
+      success_msg: 'If your email is registered, you will receive password reset instructions'
+    });
+  } catch (err) {
+    console.error(err);
+    res.render('auth/forgot-password', {
+      title: 'Forgot Password',
+      errors: [{ msg: 'Server error. Please try again.' }]
+    });
+  }
+});
+
+// Reset Password page
+router.get('/reset-password/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    // Find user by token and check if token is still valid
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      req.flash('error', 'Password reset token is invalid or has expired');
+      return res.redirect('/forgot-password');
+    }
+
+    res.render('auth/reset-password', {
+      title: 'Reset Password',
+      token,
+      errors: []
+    });
+  } catch (err) {
+    console.error(err);
+    res.redirect('/forgot-password');
+  }
+});
+
+// Reset Password process
+router.post('/reset-password/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { password, confirmPassword } = req.body;
+
+    // Validation
+    let errors = [];
+
+    if (!password || !confirmPassword) {
+      errors.push({ msg: 'Please fill in all fields' });
+    }
+
+    if (password !== confirmPassword) {
+      errors.push({ msg: 'Passwords do not match' });
+    }
+
+    if (password.length < 6) {
+      errors.push({ msg: 'Password should be at least 6 characters' });
+    }
+
+    if (errors.length > 0) {
+      return res.render('auth/reset-password', {
+        title: 'Reset Password',
+        token,
+        errors
+      });
+    }
+
+    // Find user by token and check if token is still valid
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      req.flash('error', 'Password reset token is invalid or has expired');
+      return res.redirect('/forgot-password');
+    }
+
+    // Update password
+    user.password = password;
+    user.resetPasswordToken = null;
+    user.resetPasswordExpires = null;
+
+    await user.save();
+
+    req.flash('success', 'Your password has been updated. You can now log in with your new password');
+    res.redirect('/login');
+  } catch (err) {
+    console.error(err);
+    res.redirect('/forgot-password');
+  }
 });
 
 module.exports = router;

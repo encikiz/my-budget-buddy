@@ -22,6 +22,16 @@ router.get('/', ensureAuthenticated, async (req, res) => {
       ? new Date(req.query.endDate)
       : new Date(new Date().getFullYear(), 11, 31);
 
+    // Check if comparison is requested
+    const showComparison = req.query.compare === 'true';
+
+    // Initialize previous year data
+    const previousYear = new Date().getFullYear() - 1;
+    let previousYearTotals = {};
+    let previousYearMonthlyData = [];
+
+    // If comparison is requested, we'll populate these later
+
     // Format dates for display
     const formattedStartDate = moment(startDate).format('YYYY-MM-DD');
     const formattedEndDate = moment(endDate).format('YYYY-MM-DD');
@@ -110,7 +120,11 @@ router.get('/', ensureAuthenticated, async (req, res) => {
       startDate: formattedStartDate,
       endDate: formattedEndDate,
       currentYear: new Date().getFullYear(),
-      currentBalance
+      currentBalance,
+      showComparison,
+      previousYear,
+      previousYearTotals,
+      previousYearMonthlyData
     });
   } catch (err) {
     console.error(err);
