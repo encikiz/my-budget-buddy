@@ -26,6 +26,13 @@
 # Fallback for server errors
 [[redirects]]
   from = "/*"
-  to = "/fallback.html"
+  to = "/error.html"
   status = 500
   force = false
+
+# Redirect for the test function
+[[redirects]]
+  from = "/test"
+  to = "/.netlify/functions/test"
+  status = 200
+  force = true

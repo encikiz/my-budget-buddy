@@ -29,19 +29,41 @@ log('Attempting to connect to MongoDB with URI:', process.env.MONGODB_URI ? 'URI
 
 // Handle MongoDB connection
 let dbConnected = false;
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 5000 // 5 second timeout for server selection
-})
-  .then(() => {
+
+// Log the MongoDB URI (with password masked)
+const maskedUri = process.env.MONGODB_URI ?
+  process.env.MONGODB_URI.replace(/:([^:@]+)@/, ':****@') :
+  'MongoDB URI not found';
+log('Attempting to connect to MongoDB with URI:', maskedUri);
+
+// Add retry logic for MongoDB connection
+const connectWithRetry = async (retries = 5, delay = 2000) => {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 10000, // 10 second timeout
+      socketTimeoutMS: 45000, // 45 second socket timeout
+      family: 4 // Force IPv4
+    });
     log('MongoDB connected successfully');
     dbConnected = true;
-  })
-  .catch(err => {
-    log('MongoDB connection error:', err.message);
-    // Continue execution even if DB connection fails
-  });
+    return true;
+  } catch (err) {
+    log(`MongoDB connection error: ${err.message}`);
+    if (retries > 0) {
+      log(`Retrying connection in ${delay}ms... (${retries} attempts left)`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+      return connectWithRetry(retries - 1, delay);
+    } else {
+      log('Failed to connect to MongoDB after multiple attempts');
+      return false;
+    }
+  }
+};
+
+// Start connection process but don't wait for it
+connectWithRetry();
 
 // Set up EJS as the view engine
 app.set('view engine', 'ejs');
@@ -58,28 +80,46 @@ app.use(methodOverride('_method'));
 // Session middleware
 log('Setting up session middleware with secret:', process.env.SESSION_SECRET ? 'Secret exists' : 'Using fallback secret');
 
+// Create a session store that works even if MongoDB isn't connected yet
+const createSessionStore = () => {
+  try {
+    return MongoStore.create({
+      mongoUrl: process.env.MONGODB_URI,
+      ttl: 60 * 60 * 24, // 1 day
+      touchAfter: 24 * 3600, // Only update the session once per day unless data changes
+      crypto: {
+        secret: process.env.SESSION_SECRET || 'fallback_secret_key'
+      },
+      autoRemove: 'native', // Use MongoDB's TTL index
+      // Don't fail if MongoDB isn't connected yet
+      clientPromise: Promise.resolve(mongoose.connection.getClient())
+        .catch(err => {
+          log('Error getting MongoDB client for session store:', err.message);
+          return null;
+        })
+    });
+  } catch (err) {
+    log('Error creating MongoDB session store:', err.message);
+    return null;
+  }
+};
+
 const sessionConfig = {
   secret: process.env.SESSION_SECRET || 'fallback_secret_key',
   resave: false,
   saveUninitialized: false,
   cookie: {
     maxAge: 1000 * 60 * 60 * 24, // 1 day
-    secure: false // Setting to false for Netlify, even in production
-  }
+    secure: false, // Setting to false for Netlify, even in production
+    httpOnly: true,
+    sameSite: 'lax'
+  },
+  // Use a try-catch to handle session store errors
+  store: createSessionStore()
 };
 
-// Only use MongoStore if DB is connected
-if (dbConnected) {
-  sessionConfig.store = MongoStore.create({
-    mongoUrl: process.env.MONGODB_URI,
-    ttl: 60 * 60 * 24 // 1 day
-  });
-  log('Using MongoDB for session storage');
-} else {
-  log('Using memory for session storage (MongoDB not connected)');
-}
-
 app.use(session(sessionConfig));
+log('Session middleware configured');
 
 // Flash middleware
 app.use(flash());
