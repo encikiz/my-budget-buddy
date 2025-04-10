@@ -32,7 +32,18 @@ Budget Buddy is a personal finance management application that helps users track
 2. Install dependencies: `npm install`
 3. Set up environment variables (see `.env.example`)
 4. Start the server: `npm start`
-5. Visit `http://localhost:5001` in your browser
+5. Visit `http://localhost:5002` in your browser
+
+## Deployment
+
+### Vercel Deployment
+
+Budget Buddy is configured for deployment on Vercel. For detailed deployment instructions, see [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md).
+
+1. Push your code to GitHub
+2. Connect your GitHub repository to Vercel
+3. Configure environment variables in Vercel
+4. Deploy your application
 
 ## Screenshots
 
