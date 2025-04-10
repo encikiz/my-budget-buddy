@@ -41,6 +41,66 @@ app.use(express.json());
 
 // For Netlify deployment, we'll use a direct HTML response instead of EJS templates
 app.get('/', (req, res) => {
+  log('Request received with query:', req.query);
+
+  // Check if this is a guest login request
+  if (req.query.guest === 'true') {
+    log('Guest login requested');
+    return res.send(`
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Budget Buddy - Guest Login</title>
+        <style>
+          body { background-color: #1a1f2e; color: #ffffff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+          .container { background-color: #131726; padding: 2rem; border-radius: 8px; max-width: 400px; width: 100%; text-align: center; }
+          h1 { color: #3a56e4; margin-bottom: 1rem; }
+          p { margin-bottom: 1.5rem; line-height: 1.5; }
+          .btn { background-color: #3a56e4; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>Guest Login</h1>
+          <p>This is a static demo of Budget Buddy deployed on Netlify. The full application with database functionality is available on the local development server.</p>
+          <a href="/" class="btn">Back to Login</a>
+        </div>
+      </body>
+      </html>
+    `);
+  }
+
+  // Check if this is a register request
+  if (req.query.register === 'true') {
+    log('Register page requested');
+    return res.send(`
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Budget Buddy - Register</title>
+        <style>
+          body { background-color: #1a1f2e; color: #ffffff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+          .container { background-color: #131726; padding: 2rem; border-radius: 8px; max-width: 400px; width: 100%; text-align: center; }
+          h1 { color: #3a56e4; margin-bottom: 1rem; }
+          p { margin-bottom: 1.5rem; line-height: 1.5; }
+          .btn { background-color: #3a56e4; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>Register</h1>
+          <p>This is a static demo of Budget Buddy deployed on Netlify. The full application with database functionality is available on the local development server.</p>
+          <a href="/" class="btn">Back to Login</a>
+        </div>
+      </body>
+      </html>
+    `);
+  }
+
   log('Serving login page');
 
   // Send a complete HTML response that mimics the login page
@@ -229,7 +289,7 @@ app.get('/', (req, res) => {
               <p>Take control of your money, understand your spending habits, and reach your financial goals with ease.</p>
             </div>
 
-            <form action="/.netlify/functions/simple-server/login" method="POST">
+            <form action="/.netlify/functions/simple-server" method="POST">
               <div class="form-group">
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" class="form-control" required>
@@ -247,11 +307,11 @@ app.get('/', (req, res) => {
 
             <div class="guest-login">
               <p>- OR -</p>
-              <a href="/.netlify/functions/simple-server/guest-login" class="btn-secondary">Login as Guest</a>
+              <a href="/.netlify/functions/simple-server?guest=true" class="btn-secondary">Login as Guest</a>
             </div>
 
             <div class="auth-footer">
-              <p>Don't have an account? <a href="/.netlify/functions/simple-server/register">Register</a></p>
+              <p>Don't have an account? <a href="/.netlify/functions/simple-server?register=true">Register</a></p>
             </div>
           </div>
         </div>
@@ -273,7 +333,7 @@ app.get('/health', (req, res) => {
 });
 
 // Handle login form submission
-app.post('/login', (req, res) => {
+app.post('/', (req, res) => {
   const { email, password } = req.body;
   log('Login attempt:', email);
 
@@ -307,71 +367,7 @@ app.post('/login', (req, res) => {
   res.status(200).send(message);
 });
 
-// Handle guest login
-app.get('/guest-login', (req, res) => {
-  log('Guest login attempt');
-
-  // For Netlify demo, just show a message
-  const message = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Budget Buddy - Guest Login</title>
-      <style>
-        body { background-color: #1a1f2e; color: #ffffff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .container { background-color: #131726; padding: 2rem; border-radius: 8px; max-width: 400px; width: 100%; text-align: center; }
-        h1 { color: #3a56e4; margin-bottom: 1rem; }
-        p { margin-bottom: 1.5rem; line-height: 1.5; }
-        .btn { background-color: #3a56e4; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <h1>Guest Login</h1>
-        <p>This is a static demo of Budget Buddy deployed on Netlify. The full application with database functionality is available on the local development server.</p>
-        <a href="/" class="btn">Back to Login</a>
-      </div>
-    </body>
-    </html>
-  `;
-
-  res.status(200).send(message);
-});
-
-// Handle register page
-app.get('/register', (req, res) => {
-  log('Register page request');
-
-  // For Netlify demo, just show a message
-  const message = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Budget Buddy - Register</title>
-      <style>
-        body { background-color: #1a1f2e; color: #ffffff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .container { background-color: #131726; padding: 2rem; border-radius: 8px; max-width: 400px; width: 100%; text-align: center; }
-        h1 { color: #3a56e4; margin-bottom: 1rem; }
-        p { margin-bottom: 1.5rem; line-height: 1.5; }
-        .btn { background-color: #3a56e4; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <h1>Register</h1>
-        <p>This is a static demo of Budget Buddy deployed on Netlify. The full application with database functionality is available on the local development server.</p>
-        <a href="/" class="btn">Back to Login</a>
-      </div>
-    </body>
-    </html>
-  `;
-
-  res.status(200).send(message);
-});
+// Note: Guest login and register routes are now handled in the main route with query parameters
 
 // 404 handler
 app.use((req, res) => {
