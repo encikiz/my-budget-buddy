@@ -65,7 +65,7 @@ app.get('/', (req, res) => {
         <div class="container">
           <h1>Guest Login</h1>
           <p>This is a static demo of Budget Buddy deployed on Netlify. The full application with database functionality is available on the local development server.</p>
-          <a href="/" class="btn">Back to Login</a>
+          <a href="/.netlify/functions/simple-server" class="btn">Back to Login</a>
         </div>
       </body>
       </html>
@@ -94,7 +94,7 @@ app.get('/', (req, res) => {
         <div class="container">
           <h1>Register</h1>
           <p>This is a static demo of Budget Buddy deployed on Netlify. The full application with database functionality is available on the local development server.</p>
-          <a href="/" class="btn">Back to Login</a>
+          <a href="/.netlify/functions/simple-server" class="btn">Back to Login</a>
         </div>
       </body>
       </html>
@@ -289,7 +289,7 @@ app.get('/', (req, res) => {
               <p>Take control of your money, understand your spending habits, and reach your financial goals with ease.</p>
             </div>
 
-            <form action="/.netlify/functions/simple-server" method="POST">
+            <form action="/" method="POST">
               <div class="form-group">
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" class="form-control" required>
@@ -307,11 +307,11 @@ app.get('/', (req, res) => {
 
             <div class="guest-login">
               <p>- OR -</p>
-              <a href="/.netlify/functions/simple-server?guest=true" class="btn-secondary">Login as Guest</a>
+              <a href="/?guest=true" class="btn-secondary">Login as Guest</a>
             </div>
 
             <div class="auth-footer">
-              <p>Don't have an account? <a href="/.netlify/functions/simple-server?register=true">Register</a></p>
+              <p>Don't have an account? <a href="/?register=true">Register</a></p>
             </div>
           </div>
         </div>
@@ -358,7 +358,7 @@ app.post('/', (req, res) => {
         <h1>Login Attempt Received</h1>
         <p>This is a static demo of Budget Buddy deployed on Netlify. The full application with database functionality is available on the local development server.</p>
         <p>Email: ${email}</p>
-        <a href="/" class="btn">Back to Login</a>
+        <a href="/.netlify/functions/simple-server" class="btn">Back to Login</a>
       </div>
     </body>
     </html>
@@ -387,7 +387,23 @@ const handler = serverless(app);
 // Export the handler with additional error handling
 module.exports.handler = async (event, context) => {
   // Log the incoming request
-  log('Incoming request:', event.path, event.httpMethod);
+  log('Incoming request:', event.path, event.httpMethod, event.queryStringParameters);
+
+  // For Netlify, we need to modify the event path to work with Express routing
+  // This ensures that query parameters like ?guest=true are properly handled
+  if (event.queryStringParameters) {
+    // If there are query parameters, make sure they're passed to the Express app
+    const queryString = Object.entries(event.queryStringParameters)
+      .map(([key, value]) => `${key}=${value}`)
+      .join('&');
+
+    if (queryString) {
+      log('Query string:', queryString);
+      // Keep the original path but ensure query params are preserved
+      event.path = event.path.split('?')[0];
+      log('Modified path:', event.path);
+    }
+  }
 
   try {
     // Call the serverless handler
