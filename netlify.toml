@@ -15,10 +15,10 @@
   node_bundler = "esbuild"
   external_node_modules = ["express"]
 
-# Primary redirect to the serverless function
+# Primary redirect to the simplified serverless function
 [[redirects]]
   from = "/*"
-  to = "/.netlify/functions/server"
+  to = "/.netlify/functions/simple-server"
   status = 200
   # Fallback if the function fails or times out
   force = true
