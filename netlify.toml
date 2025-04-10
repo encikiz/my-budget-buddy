@@ -13,7 +13,7 @@
 [functions]
   # Increase the timeout for functions
   node_bundler = "esbuild"
-  external_node_modules = ["express"]
+  external_node_modules = ["express", "ejs"]
 
 # Primary redirect to the simplified serverless function
 [[redirects]]
