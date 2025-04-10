@@ -116,9 +116,9 @@ const settingsRoutes = require('./routes/settings');
 const reportsRoutes = require('./routes/reports');
 const { ensureAuthenticated } = require('./middleware/auth');
 
-// Use routes
-app.use('/', authRoutes);
-app.use('/', dashboardRoutes);
+// Use routes - order matters for route matching
+app.use('/', authRoutes); // Auth routes should be first to handle login/register
+app.use('/dashboard', dashboardRoutes); // Dashboard routes with explicit path
 app.use('/income', incomeRoutes);
 app.use('/expenses', expenseRoutes);
 app.use('/categories', categoryRoutes);

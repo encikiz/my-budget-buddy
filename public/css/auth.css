@@ -40,6 +40,25 @@
     padding: 20px;
 }
 
+.welcome-message {
+    background-color: #1B1E26;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.welcome-message p {
+    margin-bottom: 8px;
+    line-height: 1.5;
+    color: #cccccc;
+    font-size: 0.9rem;
+}
+
+.welcome-message p:last-child {
+    margin-bottom: 0;
+}
+
 .auth-title {
     margin-bottom: 20px;
     text-align: center;

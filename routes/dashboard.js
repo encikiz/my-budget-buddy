@@ -7,7 +7,7 @@ const Category = require('../models/Category');
 const moment = require('moment');
 
 // Dashboard route
-router.get('/dashboard', ensureAuthenticated, async (req, res) => {
+router.get('/', ensureAuthenticated, async (req, res) => {
   try {
     // Get current month and year
     const now = new Date();
