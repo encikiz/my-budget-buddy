@@ -4,16 +4,18 @@ const passport = require('passport');
 const User = require('../models/User');
 const { ensureGuest } = require('../middleware/auth');
 
-// Home route - redirect to login or dashboard
+// Home route - show login page or redirect to dashboard
 router.get('/', (req, res) => {
   if (req.isAuthenticated()) {
     res.redirect('/dashboard');
   } else {
-    res.redirect('/login');
+    res.render('auth/login', {
+      title: 'Login'
+    });
   }
 });
 
-// Login page
+// Login page (alternative route)
 router.get('/login', ensureGuest, (req, res) => {
   res.render('auth/login', {
     title: 'Login'
