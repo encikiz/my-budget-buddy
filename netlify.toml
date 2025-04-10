@@ -9,7 +9,23 @@
   publish = "public"
   functions = "netlify/functions"
 
+# Function settings
+[functions]
+  # Increase the timeout for functions
+  node_bundler = "esbuild"
+  external_node_modules = ["express"]
+
+# Primary redirect to the serverless function
 [[redirects]]
   from = "/*"
   to = "/.netlify/functions/server"
   status = 200
+  # Fallback if the function fails or times out
+  force = true
+
+# Fallback for server errors
+[[redirects]]
+  from = "/*"
+  to = "/fallback.html"
+  status = 500
+  force = false

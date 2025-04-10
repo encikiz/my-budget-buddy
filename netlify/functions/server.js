@@ -11,6 +11,10 @@ const path = require('path');
 const methodOverride = require('method-override');
 const dotenv = require('dotenv');
 
+// For debugging
+const DEBUG = true;
+const log = (...args) => DEBUG && console.log(...args);
+
 // Load environment variables
 dotenv.config();
 
@@ -21,12 +25,23 @@ const User = require('../../models/User');
 const app = express();
 
 // Connect to MongoDB
+log('Attempting to connect to MongoDB with URI:', process.env.MONGODB_URI ? 'URI exists' : 'URI is missing');
+
+// Handle MongoDB connection
+let dbConnected = false;
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000 // 5 second timeout for server selection
 })
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
+  .then(() => {
+    log('MongoDB connected successfully');
+    dbConnected = true;
+  })
+  .catch(err => {
+    log('MongoDB connection error:', err.message);
+    // Continue execution even if DB connection fails
+  });
 
 // Set up EJS as the view engine
 app.set('view engine', 'ejs');
@@ -41,19 +56,30 @@ app.use(express.static(path.join(__dirname, '../../public')));
 app.use(methodOverride('_method'));
 
 // Session middleware
-app.use(session({
+log('Setting up session middleware with secret:', process.env.SESSION_SECRET ? 'Secret exists' : 'Using fallback secret');
+
+const sessionConfig = {
   secret: process.env.SESSION_SECRET || 'fallback_secret_key',
   resave: false,
   saveUninitialized: false,
-  store: MongoStore.create({ 
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24, // 1 day
+    secure: false // Setting to false for Netlify, even in production
+  }
+};
+
+// Only use MongoStore if DB is connected
+if (dbConnected) {
+  sessionConfig.store = MongoStore.create({
     mongoUrl: process.env.MONGODB_URI,
     ttl: 60 * 60 * 24 // 1 day
-  }),
-  cookie: { 
-    maxAge: 1000 * 60 * 60 * 24, // 1 day
-    secure: process.env.NODE_ENV === 'production'
-  }
-}));
+  });
+  log('Using MongoDB for session storage');
+} else {
+  log('Using memory for session storage (MongoDB not connected)');
+}
+
+app.use(session(sessionConfig));
 
 // Flash middleware
 app.use(flash());
@@ -128,10 +154,48 @@ app.use('/categories', categoryRoutes);
 app.use('/settings', settingsRoutes);
 app.use('/reports', reportsRoutes);
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+  log('Error encountered:', err.message);
+  res.status(500).render('error', {
+    title: 'Error',
+    message: 'An unexpected error occurred',
+    user: req.user
+  });
+});
+
 // 404 handler
 app.use((req, res) => {
+  log('404 Not Found:', req.originalUrl);
   res.status(404).render('404', { title: 'Page Not Found' });
 });
 
-// Export the serverless handler
-module.exports.handler = serverless(app);
+// Create the serverless handler with debug options
+const handler = serverless(app, {
+  binary: false,
+  provider: {
+    // Log more details about the request
+    request: {
+      logger: log
+    }
+  }
+});
+
+// Export the handler with additional error handling
+module.exports.handler = async (event, context) => {
+  // Log the incoming request
+  log('Incoming request:', event.path, event.httpMethod);
+
+  try {
+    // Call the serverless handler
+    const result = await handler(event, context);
+    log('Response status:', result.statusCode);
+    return result;
+  } catch (error) {
+    log('Serverless handler error:', error.message);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: 'Internal Server Error' })
+    };
+  }
+};
