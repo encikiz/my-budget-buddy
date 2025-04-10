@@ -22,7 +22,8 @@
     "moment": "^2.29.4",
     "mongoose": "^7.5.0",
     "passport": "^0.6.0",
-    "passport-local": "^1.0.0"
+    "passport-local": "^1.0.0",
+    "serverless-http": "^3.2.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
