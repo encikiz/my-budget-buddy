@@ -36,3 +36,17 @@
   to = "/.netlify/functions/test"
   status = 200
   force = true
+
+# Redirect for the simple server
+[[redirects]]
+  from = "/simple/*"
+  to = "/.netlify/functions/simple-server"
+  status = 200
+  force = true
+
+# Redirect for health check
+[[redirects]]
+  from = "/health"
+  to = "/.netlify/functions/server/api/health"
+  status = 200
+  force = true

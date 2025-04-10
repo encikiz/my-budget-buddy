@@ -213,21 +213,56 @@ app.use((req, res) => {
 // Create the serverless handler
 const handler = serverless(app);
 
+// Add a simple health check route
+app.get('/api/health', (req, res) => {
+  const status = {
+    status: 'ok',
+    mongodb: dbConnected ? 'connected' : 'disconnected',
+    environment: process.env.NODE_ENV,
+    timestamp: new Date().toISOString()
+  };
+  res.json(status);
+});
+
 // Export the handler with additional error handling
 module.exports.handler = async (event, context) => {
   // Log the incoming request
   log('Incoming request:', event.path, event.httpMethod);
 
+  // Add a timeout to prevent function from hanging
+  context.callbackWaitsForEmptyEventLoop = false;
+
   try {
+    // Special case for health check
+    if (event.path === '/.netlify/functions/server/api/health') {
+      return {
+        statusCode: 200,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: 'ok',
+          mongodb: dbConnected ? 'connected' : 'disconnected',
+          environment: process.env.NODE_ENV,
+          timestamp: new Date().toISOString()
+        })
+      };
+    }
+
     // Call the serverless handler
     const result = await handler(event, context);
     log('Response status:', result.statusCode);
     return result;
   } catch (error) {
     log('Serverless handler error:', error.message);
+    log('Error stack:', error.stack);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Internal Server Error' })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        error: 'Internal Server Error',
+        message: error.message,
+        path: event.path,
+        method: event.httpMethod
+      })
     };
   }
 };
