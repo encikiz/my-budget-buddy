@@ -52,20 +52,239 @@ app.get('/', (req, res) => {
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Budget Buddy - Guest Login</title>
+        <title>Budget Buddy - Guest Dashboard</title>
         <style>
-          body { background-color: #1a1f2e; color: #ffffff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-          .container { background-color: #131726; padding: 2rem; border-radius: 8px; max-width: 400px; width: 100%; text-align: center; }
-          h1 { color: #3a56e4; margin-bottom: 1rem; }
-          p { margin-bottom: 1.5rem; line-height: 1.5; }
-          .btn { background-color: #3a56e4; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; }
+          :root {
+            --primary-color: #1a1f2e;
+            --secondary-color: #131726;
+            --accent-color: #3a56e4;
+            --text-color: #ffffff;
+            --text-muted: #a0a0a0;
+            --border-color: #2a2f3f;
+            --housing-color: #ffa500;
+            --utilities-color: #4169e1;
+            --food-color: #32cd32;
+            --transportation-color: #ff6347;
+            --entertainment-color: #9370db;
+            --other-color: #20b2aa;
+            --loans-color: #e91e63;
+            --salary-color: #4caf50;
+            --freelance-color: #ff9800;
+            --investments-color: #2196f3;
+          }
+
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          }
+
+          body {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+          }
+
+          .container {
+            display: flex;
+            flex: 1;
+          }
+
+          .sidebar {
+            width: 250px;
+            background-color: var(--secondary-color);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: fixed;
+          }
+
+          .logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+          }
+
+          .logo svg {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+          }
+
+          .logo h1 {
+            font-size: 20px;
+            font-weight: 600;
+          }
+
+          .tagline {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            font-style: italic;
+          }
+
+          nav ul {
+            list-style: none;
+          }
+
+          nav ul li {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+          }
+
+          nav ul li.active {
+            background-color: var(--accent-color);
+          }
+
+          nav ul li a {
+            color: var(--text-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+          }
+
+          .main-content {
+            flex: 1;
+            padding: 20px;
+            margin-left: 250px;
+          }
+
+          .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+          }
+
+          .page-title {
+            font-size: 24px;
+            font-weight: 600;
+          }
+
+          .btn {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+          }
+
+          .card {
+            background-color: var(--secondary-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+          }
+
+          .card-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+
+          .message-box {
+            background-color: #1B1E26;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+          }
         </style>
       </head>
       <body>
         <div class="container">
-          <h1>Guest Login</h1>
-          <p>This is a static demo of Budget Buddy deployed on Netlify. The full application with database functionality is available on the local development server.</p>
-          <a href="/.netlify/functions/simple-server" class="btn">Back to Login</a>
+          <div class="sidebar">
+            <div class="logo">
+              <!-- Inline SVG logo to avoid path issues -->
+              <svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <!-- Background Circle with darker border -->
+                <circle cx="50" cy="50" r="48" fill="white" stroke="#2e7d32" stroke-width="3"/>
+
+                <!-- Glasses based on Flaticon design with increased contrast -->
+                <g transform="translate(15, 35) scale(0.7)">
+                  <!-- Left Lens -->
+                  <circle cx="25" cy="25" r="20" fill="none" stroke="#1b5e20" stroke-width="5" stroke-linecap="round"/>
+
+                  <!-- Right Lens -->
+                  <circle cx="75" cy="25" r="20" fill="none" stroke="#1b5e20" stroke-width="5" stroke-linecap="round"/>
+
+                  <!-- Bridge -->
+                  <path d="M45 25 L55 25" stroke="#1b5e20" stroke-width="5" stroke-linecap="round"/>
+
+                  <!-- Left Temple -->
+                  <path d="M5 25 L0 20" stroke="#1b5e20" stroke-width="5" stroke-linecap="round"/>
+
+                  <!-- Right Temple -->
+                  <path d="M95 25 L100 20" stroke="#1b5e20" stroke-width="5" stroke-linecap="round"/>
+                </g>
+
+                <!-- Add subtle shadow for depth -->
+                <circle cx="50" cy="50" r="48" fill="none" stroke="#e8f5e9" stroke-width="1" opacity="0.5" transform="translate(2, 2)"/>
+              </svg>
+              <h1>Budget Buddy</h1>
+            </div>
+            <div class="tagline">
+              "Your Wallet Will Thank You"
+            </div>
+            <nav>
+              <ul>
+                <li class="active"><a href="#">Dashboard</a></li>
+                <li><a href="#">Income</a></li>
+                <li><a href="#">Categories</a></li>
+                <li><a href="#">Expenses</a></li>
+                <li><a href="#">Reports</a></li>
+                <li><a href="#">Settings</a></li>
+              </ul>
+            </nav>
+          </div>
+
+          <div class="main-content">
+            <div class="header">
+              <h2 class="page-title">Dashboard</h2>
+            </div>
+
+            <div class="message-box">
+              <h3>Welcome to Budget Buddy Demo</h3>
+              <p>This is a static demo of Budget Buddy deployed on Netlify.</p>
+              <p>The full application with database functionality is available on the local development server.</p>
+              <p>You're currently viewing the demo in guest mode.</p>
+              <br>
+              <a href="/.netlify/functions/simple-server" class="btn">Back to Login</a>
+            </div>
+
+            <div class="card">
+              <div class="card-title">
+                <h3>Monthly Overview</h3>
+              </div>
+              <p>Income: RM 5,000.00</p>
+              <p>Expenses: RM 3,200.00</p>
+              <p>Balance: RM 1,800.00</p>
+            </div>
+
+            <div class="card">
+              <div class="card-title">
+                <h3>Recent Transactions</h3>
+              </div>
+              <p>Grocery Shopping - RM 150.00</p>
+              <p>Electricity Bill - RM 85.00</p>
+              <p>Salary - RM 5,000.00</p>
+            </div>
+          </div>
         </div>
       </body>
       </html>
@@ -360,14 +579,135 @@ app.get('/', (req, res) => {
           color: var(--text-muted);
           font-size: 0.8rem;
         }
+
+        /* Modal styles */
+        .modal {
+          display: none;
+          position: fixed;
+          z-index: 1000;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.7);
+          overflow: auto;
+        }
+
+        .modal-content {
+          background-color: var(--secondary-color);
+          margin: 15% auto;
+          padding: 0;
+          border-radius: 8px;
+          width: 90%;
+          max-width: 500px;
+          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+          animation: modalFadeIn 0.3s;
+        }
+
+        @keyframes modalFadeIn {
+          from {opacity: 0; transform: translateY(-20px);}
+          to {opacity: 1; transform: translateY(0);}
+        }
+
+        .modal-header {
+          padding: 15px 20px;
+          background-color: var(--accent-color);
+          color: white;
+          border-top-left-radius: 8px;
+          border-top-right-radius: 8px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .modal-header h3 {
+          margin: 0;
+          font-size: 18px;
+        }
+
+        .close-modal {
+          color: white;
+          font-size: 24px;
+          font-weight: bold;
+          cursor: pointer;
+        }
+
+        .modal-body {
+          padding: 20px;
+          line-height: 1.5;
+        }
+
+        .modal-footer {
+          padding: 15px 20px;
+          text-align: right;
+          border-top: 1px solid var(--border-color);
+        }
+
+        .btn-modal {
+          background-color: var(--accent-color);
+          color: white;
+          border: none;
+          padding: 8px 16px;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 14px;
+        }
+
+        .btn-modal:hover {
+          background-color: #2a46d4;
+        }
       </style>
+
+      <script>
+        // Modal functionality
+        function showGoogleLoginMessage() {
+          document.getElementById('googleLoginModal').style.display = 'block';
+        }
+
+        function closeGoogleLoginMessage() {
+          document.getElementById('googleLoginModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+          const modal = document.getElementById('googleLoginModal');
+          if (event.target === modal) {
+            modal.style.display = 'none';
+          }
+        }
+      </script>
     </head>
     <body>
       <div class="auth-container">
         <div class="auth-card">
           <div class="auth-header">
             <div class="logo">
-              <img src="/images/nerdy-finance-logo-ultra.svg" alt="Budget Buddy Logo">
+              <!-- Inline SVG logo to avoid path issues -->
+              <svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <!-- Background Circle with darker border -->
+                <circle cx="50" cy="50" r="48" fill="white" stroke="#2e7d32" stroke-width="3"/>
+
+                <!-- Glasses based on Flaticon design with increased contrast -->
+                <g transform="translate(15, 35) scale(0.7)">
+                  <!-- Left Lens -->
+                  <circle cx="25" cy="25" r="20" fill="none" stroke="#1b5e20" stroke-width="5" stroke-linecap="round"/>
+
+                  <!-- Right Lens -->
+                  <circle cx="75" cy="25" r="20" fill="none" stroke="#1b5e20" stroke-width="5" stroke-linecap="round"/>
+
+                  <!-- Bridge -->
+                  <path d="M45 25 L55 25" stroke="#1b5e20" stroke-width="5" stroke-linecap="round"/>
+
+                  <!-- Left Temple -->
+                  <path d="M5 25 L0 20" stroke="#1b5e20" stroke-width="5" stroke-linecap="round"/>
+
+                  <!-- Right Temple -->
+                  <path d="M95 25 L100 20" stroke="#1b5e20" stroke-width="5" stroke-linecap="round"/>
+                </g>
+
+                <!-- Add subtle shadow for depth -->
+                <circle cx="50" cy="50" r="48" fill="none" stroke="#e8f5e9" stroke-width="1" opacity="0.5" transform="translate(2, 2)"/>
+              </svg>
               <h1>Budget Buddy</h1>
             </div>
             <div class="tagline">
@@ -382,10 +722,27 @@ app.get('/', (req, res) => {
             </div>
 
             <div class="login-options">
-              <a href="#" class="btn-google" onclick="alert('Google login is only available in the full application')">
+              <a href="#" class="btn-google" onclick="showGoogleLoginMessage()">
                 <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo">
                 <span>Login with Google</span>
               </a>
+
+              <!-- Custom modal for Google login message -->
+              <div id="googleLoginModal" class="modal">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h3>Google Login</h3>
+                    <span class="close-modal" onclick="closeGoogleLoginMessage()">&times;</span>
+                  </div>
+                  <div class="modal-body">
+                    <p>Google login is only available in the full application running on a local development server.</p>
+                    <p>Please use the Guest login option to explore the demo version.</p>
+                  </div>
+                  <div class="modal-footer">
+                    <button onclick="closeGoogleLoginMessage()" class="btn-modal">OK</button>
+                  </div>
+                </div>
+              </div>
 
               <div class="option-divider">
                 <span>OR</span>
