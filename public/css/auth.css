@@ -1,0 +1,104 @@
+/* Authentication Styles */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.auth-card {
+    background-color: var(--secondary-color);
+    border-radius: 10px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+.auth-header {
+    background-color: var(--primary-color);
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.auth-header .logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.auth-header .logo i {
+    font-size: 24px;
+    margin-right: 10px;
+    color: var(--accent-color);
+}
+
+.auth-body {
+    padding: 20px;
+}
+
+.auth-title {
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 24px;
+}
+
+.guest-login {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.guest-login p {
+    margin-bottom: 15px;
+    color: var(--text-muted);
+    position: relative;
+}
+
+.guest-login p::before,
+.guest-login p::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 30%;
+    height: 1px;
+    background-color: var(--border-color);
+}
+
+.guest-login p::before {
+    left: 0;
+}
+
+.guest-login p::after {
+    right: 0;
+}
+
+.guest-login .btn-secondary {
+    width: 100%;
+    text-align: center;
+    background-color: rgba(58, 86, 228, 0.2);
+    border-color: var(--accent-color);
+    transition: background-color 0.3s;
+}
+
+.guest-login .btn-secondary:hover {
+    background-color: rgba(58, 86, 228, 0.4);
+}
+
+.auth-footer {
+    margin-top: 20px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.auth-footer a {
+    color: var(--accent-color);
+}
+
+@media (max-width: 480px) {
+    .auth-card {
+        max-width: 100%;
+    }
+}

@@ -4,6 +4,15 @@ const passport = require('passport');
 const User = require('../models/User');
 const { ensureGuest } = require('../middleware/auth');
 
+// Home route - redirect to login or dashboard
+router.get('/', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.redirect('/dashboard');
+  } else {
+    res.redirect('/login');
+  }
+});
+
 // Login page
 router.get('/login', ensureGuest, (req, res) => {
   res.render('auth/login', {
@@ -86,6 +95,41 @@ router.post('/register', async (req, res) => {
       title: 'Register',
       errors: [{ msg: 'Server error. Please try again.' }]
     });
+  }
+});
+
+// Guest login
+router.get('/guest-login', async (req, res) => {
+  try {
+    // Check if guest user exists
+    let guestUser = await User.findOne({ email: 'guest@budgetbuddy.com' });
+
+    // If guest user doesn't exist, create one
+    if (!guestUser) {
+      guestUser = new User({
+        name: 'Guest User',
+        email: 'guest@budgetbuddy.com',
+        password: 'guestpassword123' // This will be hashed by the pre-save hook
+      });
+
+      await guestUser.save();
+      console.log('Guest user created');
+    }
+
+    // Log in as guest
+    req.login(guestUser, (err) => {
+      if (err) {
+        console.error('Error logging in as guest:', err);
+        req.flash('error', 'Error logging in as guest');
+        return res.redirect('/login');
+      }
+
+      return res.redirect('/');
+    });
+  } catch (err) {
+    console.error('Guest login error:', err);
+    req.flash('error', 'Error logging in as guest');
+    res.redirect('/login');
   }
 });
 

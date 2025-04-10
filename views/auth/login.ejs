@@ -6,6 +6,7 @@
     <title>Budget Buddy - <%= title %></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/auth.css">
 </head>
 <body>
     <div class="auth-container">
@@ -19,10 +20,10 @@
                     "Your Wallet Will Thank You"
                 </div>
             </div>
-            
+
             <div class="auth-body">
                 <h2>Login</h2>
-                
+
                 <% if(typeof errors !== 'undefined') { %>
                     <div class="alert alert-danger">
                         <% errors.forEach(function(error) { %>
@@ -30,36 +31,41 @@
                         <% }); %>
                     </div>
                 <% } %>
-                
+
                 <% if(typeof success_msg !== 'undefined' && success_msg !== '') { %>
                     <div class="alert alert-success">
                         <%= success_msg %>
                     </div>
                 <% } %>
-                
+
                 <form action="/login" method="POST">
                     <div class="form-group">
                         <label for="email">Email</label>
                         <input type="email" id="email" name="email" class="form-control" required>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="password">Password</label>
                         <input type="password" id="password" name="password" class="form-control" required>
                     </div>
-                    
+
                     <div class="form-actions">
                         <button type="submit" class="btn-primary">Login</button>
                     </div>
                 </form>
-                
+
+                <div class="guest-login">
+                    <p>- OR -</p>
+                    <a href="/guest-login" class="btn-secondary">Login as Guest</a>
+                </div>
+
                 <div class="auth-footer">
                     <p>Don't have an account? <a href="/register">Register</a></p>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <footer>
         <p>Budget Buddy: Your Wallet Will Thank You. Developed by Hafizan.</p>
     </footer>
