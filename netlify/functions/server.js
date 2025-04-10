@@ -170,16 +170,8 @@ app.use((req, res) => {
   res.status(404).render('404', { title: 'Page Not Found' });
 });
 
-// Create the serverless handler with debug options
-const handler = serverless(app, {
-  binary: false,
-  provider: {
-    // Log more details about the request
-    request: {
-      logger: log
-    }
-  }
-});
+// Create the serverless handler
+const handler = serverless(app);
 
 // Export the handler with additional error handling
 module.exports.handler = async (event, context) => {
