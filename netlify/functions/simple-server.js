@@ -158,10 +158,15 @@ app.get('/', (req, res) => {
         }
 
         .auth-header {
-          background-color: var(--primary-color);
+          background-color: #2d3447; /* Changed to make it pop out */
           padding: 20px;
           text-align: center;
           border-bottom: 1px solid var(--border-color);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
 
         .auth-header .logo {
@@ -169,12 +174,23 @@ app.get('/', (req, res) => {
           justify-content: center;
           align-items: center;
           margin-bottom: 10px;
+          width: 100%;
+          text-align: center;
         }
 
         .auth-header .logo img {
           width: 40px;
           height: 40px;
           margin-right: 10px;
+        }
+
+        .auth-header .tagline {
+          font-style: italic;
+          color: var(--text-muted);
+          margin-bottom: 10px;
+          font-size: 0.9rem;
+          width: 100%;
+          text-align: center;
         }
 
         .auth-body {
@@ -227,22 +243,36 @@ app.get('/', (req, res) => {
           text-align: center;
         }
 
-        .guest-login {
-          margin: 15px 0;
+        .guest-info {
+          margin-top: 5px;
+          font-size: 0.85rem;
+          color: var(--text-muted);
           text-align: center;
         }
 
-        .btn-secondary {
+        .btn-guest {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
+          padding: 12px 20px;
           background-color: rgba(58, 86, 228, 0.2);
           color: var(--text-color);
-          border: 1px solid var(--accent-color);
-          padding: 10px 20px;
           border-radius: 5px;
-          cursor: pointer;
-          display: inline-block;
-          width: 100%;
-          text-align: center;
+          border: 1px solid var(--accent-color);
+          font-weight: 500;
           text-decoration: none;
+          transition: background-color 0.3s;
+          font-size: 16px;
+        }
+
+        .btn-guest:hover {
+          background-color: rgba(58, 86, 228, 0.4);
+        }
+
+        .btn-guest i {
+          font-size: 20px;
+          margin-right: 10px;
         }
 
         .auth-footer {
@@ -257,33 +287,38 @@ app.get('/', (req, res) => {
         }
 
         /* Social login styles */
-        .social-login {
+        .login-options {
           margin: 20px 0;
           text-align: center;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
         }
 
-        .social-login p {
-          margin-bottom: 15px;
-          color: var(--text-muted);
+        .option-divider {
           position: relative;
+          text-align: center;
+          margin: 5px 0;
         }
 
-        .social-login p::before,
-        .social-login p::after {
+        .option-divider span {
+          background-color: var(--secondary-color);
+          color: var(--text-muted);
+          padding: 0 15px;
+          position: relative;
+          z-index: 1;
+          font-size: 14px;
+        }
+
+        .option-divider::before {
           content: '';
           position: absolute;
           top: 50%;
-          width: 30%;
+          left: 0;
+          right: 0;
           height: 1px;
           background-color: var(--border-color);
-        }
-
-        .social-login p::before {
-          left: 0;
-        }
-
-        .social-login p::after {
-          right: 0;
+          z-index: 0;
         }
 
         .btn-google {
@@ -346,32 +381,21 @@ app.get('/', (req, res) => {
               <p>Take control of your money, understand your spending habits, and reach your financial goals with ease.</p>
             </div>
 
-            <form action="/" method="POST">
-              <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" class="form-control" required>
-              </div>
-
-              <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" class="form-control" required>
-              </div>
-
-              <div class="form-actions">
-                <button type="submit" class="btn-primary">Login</button>
-              </div>
-            </form>
-
-            <div class="social-login">
-              <p>- OR -</p>
+            <div class="login-options">
               <a href="#" class="btn-google" onclick="alert('Google login is only available in the full application')">
                 <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo">
                 <span>Login with Google</span>
               </a>
-            </div>
 
-            <div class="guest-login">
-              <a href="/?guest=true" class="btn-secondary">Login as Guest</a>
+              <div class="option-divider">
+                <span>OR</span>
+              </div>
+
+              <a href="/?guest=true" class="btn-guest">
+                <i class="fas fa-user-circle"></i>
+                <span>Login as Guest</span>
+              </a>
+
               <p class="guest-info">Try without registration. Experience all features with sample data.</p>
             </div>
 
